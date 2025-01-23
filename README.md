@@ -13,8 +13,8 @@ Step 5: Specify val acc threshold, e.g. val_f1 > 0.62 (line 309). # in order to 
 
 Step 6: Run script. When terminates your output will be like: 
 
-          _Storage_
+          Storage
              |
              |
-              ---> _models_  # the generated trained models with val accuracy over the specified threshold.
-              ---> _metrics_ # the excel files containing all mertic results of saved models.
+             |---> models  # the generated trained models with val accuracy over the specified threshold.
+             |---> metrics # the excel files containing all mertic results of saved models.
