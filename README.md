@@ -16,5 +16,5 @@ Step 6: Run script. When terminates your output will be like:
           Storage
              |
              |
-             |---> models  # the generated trained models with val accuracy over the specified threshold.
-             |---> metrics # the excel files containing all mertic results of saved models.
+             |---> models  # folder containing the generated trained models with val accuracy over the specified threshold.
+             |---> metrics # folder containing the excel files containing all mertic results of saved models.
