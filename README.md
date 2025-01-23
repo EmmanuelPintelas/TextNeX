@@ -16,5 +16,5 @@ Heterogeneous ensemble of lightweight Text Network eXperts. Contains only the Ge
           Storage
              |
              |
-             |---> models  # folder containing the generated trained models with val accuracy over the specified threshold.
+             |---> models  # folder containing the generated trained models (with names like: "name_f1score"), with val accuracy over the specified threshold. 
              |---> metrics # folder containing the excel files containing all mertic results of saved models.
