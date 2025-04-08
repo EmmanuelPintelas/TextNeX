@@ -9,25 +9,6 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, roc_auc_s
 from copy import deepcopy
 device = torch.device("cuda")
 
-# We choose a lightweight pre-trained transformer model like:
-
-# --- DistilBERT (efficient BERT variant)
-
-# --- MobileBERT
-
-# --- MiniLM
-# Variant	Parameters	Hidden Size	Layers	Pros	Cons
-# MiniLM-L6-H384-uncased	~11M	384	6	Smallest and fastest; memory-efficient	Lower accuracy
-# MiniLM-L12-H384-uncased	~22M	384	12	Balanced size and performance	Moderate size for lightweight models
-# MiniLM-L12-H768-uncased	~33M	768	12	Best accuracy among MiniLMs	Larger size
-
-# --- Domain-specific variants such as RoBERTa or DeBERTa.
-
-# --- https://huggingface.co/jinaai/jina-embeddings-v2-base-en
-
-# These can be accessed via the Hugging Face library.
-
-
 
 # ---------------- Load data ----------------------------------->
 import os
@@ -45,8 +26,6 @@ data_df = [pd.read_csv(path) for path in data_paths]
 train_texts, val_texts, test_texts = [data['text'].tolist() for data in data_df]
 train_labels, val_labels, test_labels = [data['label'].tolist() for data in data_df]
 
-train_texts = train_texts + val_texts
-train_labels = train_labels + val_labels
 
 # Convert labels to integers
 label_mapping = {label: idx for idx, label in enumerate(set(train_labels))}
@@ -212,8 +191,10 @@ for it in range(N):
     print(f"Generating Model {it+1}/{N}")
 
     # --- Randomly Initialize new TextNet ----------->
-    model_load_path = "jinaai/jina-embeddings-v2-base-en"
-    model_name = "jina-embeddings-v2-base-en"
+    model_load_path = "distilbert-base-uncased"
+    # model_name = "distilbert-base-uncased"# "microsoft/MiniLM-L12-H384-uncased"# "google/mobilebert-uncased"
+
+    model_name = "distilbert-base-uncased"
 
     tokenizer = AutoTokenizer.from_pretrained(model_load_path)
     model = AutoModelForSequenceClassification.from_pretrained(model_load_path, num_labels=num_labels).to(device)
@@ -247,10 +228,10 @@ for it in range(N):
 
 
     train_dataset = TextDataset(train_texts, train_labels, tokenizer, max_length = max_length)
-    ##val_dataset = TextDataset(val_texts, val_labels, tokenizer, max_length = max_length)
+    val_dataset = TextDataset(val_texts, val_labels, tokenizer, max_length = max_length)
     test_dataset = TextDataset(test_texts, test_labels, tokenizer, max_length = max_length)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    ##val_loader = DataLoader(val_dataset, batch_size=256)
+    val_loader = DataLoader(val_dataset, batch_size=256)
     test_loader = DataLoader(test_dataset, batch_size=256)
 
     # -------------------------------- Training loop -------------------------------------------------------->
@@ -285,7 +266,7 @@ for it in range(N):
         val_preds, val_probs, val_labels = [], [], []
         val_loss = 0
         with torch.no_grad():
-            for input_ids, attention_mask, label in test_loader:###val_loader:
+            for input_ids, attention_mask, label in val_loader:
                 input_ids, attention_mask, label = (
                         input_ids.to(device),
                         attention_mask.to(device),
@@ -306,14 +287,14 @@ for it in range(N):
         if val_f1 > best_f1:
             best_f1 = val_f1
             print('----> ', np.round(best_f1,5), ' <----\n')
-            if val_f1 > 0.62:
+            if val_f1 > 0.60:
 
                 model_save   = model_name + '_' + str(np.round(val_f1,5)) + '.pt'
                 metrics_save = model_name + '_' + str(np.round(val_f1,5)) + '.xlsx'
 
                 torch.save(model.state_dict(), os.path.join(paths_save[0], model_save))
 
-                run_evaluation(val_preds, val_probs, test_labels)
+                run_evaluation(val_preds, val_probs, val_labels)
                 metrics_df = pd.DataFrame(evaluation_metrics)
 
                 metrics_df.to_excel(os.path.join(paths_save[1], metrics_save), index=False)
@@ -332,7 +313,6 @@ for it in range(N):
             break
 
         print(f"Epoch {epoch+1}/{epochs}, Train F1: {train_f1:.4f}, Val F1: {val_f1:.4f}")
-
 
 
 
