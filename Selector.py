@@ -223,6 +223,7 @@ def eXperts_extraction(models_probs_dict):
 
 model_load_path = "Storage/models"# <-- the trained textnets based on generation phase
 save_dir = "Storage/HeX" # <-- the selected textnet experts models to be considered in the aggregation phase of final Ensemble optimization phase 
+os.makedirs(save_dir, exist_ok=True)
 
 model_files = os.listdir(model_load_path)
 models_probs_dict = Extract_Probabilities(model_files)
