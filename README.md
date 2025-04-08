@@ -57,7 +57,7 @@ This phase uses Sequential Quadratic Programming (SQP) to compute the optimal we
 What it does:
 
 - Loads all models from `Storage/HeX/`
-- Extracts logits on the validation set (only once)
+- Extracts logits on the validation set
 - Learns optimal weights to maximize Geometric Mean (GM) across validation predictions
 - Applies the weighted ensemble on the test set for final evaluation
 
@@ -73,13 +73,10 @@ Accuracy: 0.841 | F1: 0.852 | Precision: 0.857 | AUC: 0.901 | GM: 0.845
 
 ```bash
 # Step 1: Generate models
-cd Generator/
-python generator.py
+python Generator.py
 
 # Step 2: Select expert models
-cd ../Selector/
-python selector.py
+python Selector.py
 
 # Step 3: Aggregate and evaluate
-cd ../Aggregator/
-python aggregator.py
+python Aggregator.py
