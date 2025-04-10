@@ -67,7 +67,7 @@ Optimal Weights: [0.32, 0.18, 0.50]
 Best GM Achieved: 0.8451
 
 📊 Final Test Performance  
-Accuracy: 0.841 | F1: 0.852 | Precision: 0.857 | AUC: 0.901 | GM: 0.845
+Accuracy: 0.775 | AUC: 0.848 | GM: 0.772
 
 ## 🚀 End-to-End Usage
 
