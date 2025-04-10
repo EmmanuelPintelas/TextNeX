@@ -26,15 +26,24 @@ Step 5: Specify validation F1 threshold to save only useful models, e.g.
 val_f1 > 0.62
 
 Step 6: Specify the model architecture to load, e.g.  
-model_load_path = "distilbert-base-uncased" or "microsoft/MiniLM-L12-H384-uncased" or "google/mobilebert-uncased"  
-and write a corresponding name for saving, e.g. as:  
-model_name = "distilbert"
+`model_load_path = "distilbert-base-uncased"`  
+or  
+`"microsoft/MiniLM-L12-H384-uncased"`  
+or  
+`"google/mobilebert-uncased"`  
+
+and assign a simple name for saving and tracking, e.g.:  
+`model_name = "distilbert"` or `"MiniLM"` or `"mobilebert"`
 
 Step 7: Run the script. After training completes, your output will be:
 
 Storage/  
 ├── models/    → Saved models (e.g., distilbert_0.7435.pt)  
 └── metrics/   → Excel files containing evaluation metrics of each saved model
+
+
+> 💡 **Note:** For enhanced ensemble diversity, it is strongly recommended to run the script **separately for each of the three architectures** (DistilBERT, MiniLM, MobileBERT). This ensures that the generated model pool contains complementary experts with varied representational power.
+
 
 ## 🔍 Phase 2: Selector
 
