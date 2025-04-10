@@ -14,7 +14,7 @@ Step 1: Specify root path of data, e.g.
 root = 'Datasets'
 
 Step 2: Specify Task, e.g.  
-task = 'substask_1'  # or 'substask_2' # corrsponds to AuTexTification dataset
+task = 'substask_1' # corrsponds to AuTexTification dataset
 
 Step 3: Specify number of iterations, e.g.  
 N = 50  # the number of trained models to generate
