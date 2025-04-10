@@ -27,7 +27,9 @@ val_f1 > 0.62
 
 Step 6: Specify the model architecture to load, e.g.  
 model_load_path = "distilbert-base-uncased" or "microsoft/MiniLM-L12-H384-uncased" or "google/mobilebert-uncased"
+
 and write a corresponding name for saving, e.g. as:
+
 model_name = "distilbert"
 
 Step 7: Run the script. After training completes, your output will be:
