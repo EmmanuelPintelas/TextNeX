@@ -26,10 +26,7 @@ Step 5: Specify validation F1 threshold to save only useful models, e.g.
 val_f1 > 0.62
 
 Step 6: Specify the model architecture to load, e.g.  
-model_load_path = "distilbert-base-uncased"
-  # Alternatives:
-  # model_name = "microsoft/MiniLM-L12-H384-uncased"
-  # model_name = "google/mobilebert-uncased"
+model_load_path = "distilbert-base-uncased" or "microsoft/MiniLM-L12-H384-uncased" or "google/mobilebert-uncased"
 
 Step 7: Run the script. After training completes, your output will be:
 
