@@ -3,7 +3,7 @@ import torch
 import numpy as np
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from utils.aggegator_utils import (
+from utils.aggregator_utils import (
     extract_model_outputs,
     SQP,
     test_ensemble
@@ -60,7 +60,9 @@ if __name__ == "__main__":
     logits_list = extract_model_outputs(
         models=models,
         tokenizers=tokenizers,
-        device=device
+        device=device,
+        val_texts=val_texts,
+        val_labels=val_labels
         )
     # Run SQP
     optimal_weights, best_gm = SQP(logits_list, np.array(val_labels))
@@ -71,7 +73,9 @@ if __name__ == "__main__":
         models=models,
         weights=optimal_weights,
         tokenizer=tokenizers[0],
-        device=device
+        device=device,
+        test_texts=test_texts,
+        test_labels=test_labels
         )
     print("\n📊 Final Test Performance")
     print(f"Accuracy: {acc} | F1: {f1} | Precision: {pre} | AUC: {auc} | GM: {gm}")

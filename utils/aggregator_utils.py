@@ -3,7 +3,7 @@ import numpy as np
 from scipy.optimize import minimize
 from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
-from utils.utils import TextDataset, scores, run_evaluation
+from utils.utils import TextDataset, scores
 
 def get_val_loader(
         tokenizer: AutoTokenizer=None,
@@ -11,23 +11,27 @@ def get_val_loader(
         val_labels: np.array=None
         ) -> DataLoader:
     """
-    Create and return a DataLoader for validation data.
-    
-    This function initializes a TextDataset with validation texts and labels,
-    then wraps it in a PyTorch DataLoader for batch processing during validation.
-    
+    Creates and returns a PyTorch DataLoader for validation data.
+
+    This function initializes a `TextDataset` using the provided validation texts and labels,
+    applies the given tokenizer with a fixed maximum sequence length, and wraps the dataset
+    in a DataLoader for efficient batch processing.
+
     Args:
-        tokenizer: The tokenizer to use for processing the validation texts.
-            Should be compatible with the TextDataset class requirements.
-    
+        tokenizer (AutoTokenizer, optional): The tokenizer used to process validation texts.
+            Must be compatible with the `TextDataset` class.
+        val_texts (list[str], optional): A list of validation input texts.
+        val_labels (np.array, optional): A NumPy array of corresponding validation labels.
+
     Returns:
-        DataLoader: A PyTorch DataLoader containing the validation dataset
-            with specified batch size.
-    
+        DataLoader: A DataLoader containing the tokenized validation dataset, using a batch
+        size of 256 and fixed maximum sequence length of 106 tokens.
+
     Notes:
-        - Uses a fixed maximum sequence length of 106 tokens
-        - Uses a batch size of 256 for validation
-        - Assumes val_texts and val_labels are defined in the global scope
+        - Assumes `TextDataset` is defined elsewhere and accepts (texts, labels, tokenizer, max_length)
+        - Batch size is fixed at 256
+        - Max sequence length is fixed at 106 tokens
+        - All arguments must be provided explicitly; no longer relies on global variables
     """
     max_length = 106
     batch_size = 256
@@ -39,7 +43,9 @@ def get_val_loader(
 def extract_model_outputs(
         models: list=None,
         tokenizers: list=None,
-        device: str=None
+        device: str=None,
+        val_texts: list[str]=None,
+        val_labels: np.array=None
         ) -> list[torch.tensor]:
     """
     Extract prediction logits from multiple models using their respective tokenizers.
@@ -68,7 +74,7 @@ def extract_model_outputs(
     logits_list = []
     for model, tokenizer in zip(models, tokenizers):
         model.eval()
-        val_loader = get_val_loader(tokenizer)
+        val_loader = get_val_loader(tokenizer, val_texts, val_labels)
         all_logits = []
         with torch.no_grad():
             for input_ids, attention_mask, labels in val_loader:
@@ -84,25 +90,30 @@ def extract_model_outputs(
 
 def ensemble_loss(weights, logits_list, labels, best_gm, best_weights):
     """
-    Compute negative G-mean loss for ensemble weight optimization.
+    Extracts prediction logits from multiple models on a shared validation dataset.
 
-    This function computes the weighted ensemble logits using the provided weights,
-    applies softmax to obtain class probabilities, and evaluates predictions using
-    the G-mean metric. It returns the negative G-mean (to be minimized), along with
-    the best G-mean and corresponding best weights.
+    Each model is paired with its corresponding tokenizer to process the validation texts. 
+    The models are evaluated in a no-gradient context and their output logits are collected
+    for the full validation set.
 
     Args:
-        weights (list or np.array): Ensemble weights for each model.
-        logits_list (list of torch.Tensor): List of model logits, each of shape [batch_size, num_classes].
-        labels (np.array): True class labels for the batch.
-        best_gm (float): Best G-mean score observed so far.
-        best_weights (np.array): Ensemble weights that produced the best G-mean.
+        models (list[torch.nn.Module], optional): List of PyTorch models to evaluate.
+        tokenizers (list[AutoTokenizer], optional): List of tokenizers, one for each model.
+            Each tokenizer should match the expected input format of its corresponding model.
+        device (str, optional): The device on which to perform inference ('cpu' or 'cuda').
+        val_texts (list[str], optional): List of input validation texts.
+        val_labels (np.array, optional): Numpy array of corresponding validation labels.
 
     Returns:
-        tuple:
-            - float: Negative G-mean (for minimization in optimizers).
-            - float: Updated best G-mean.
-            - np.array: Updated best weights.
+        list[torch.Tensor]: A list of tensors, each containing the output logits from a model.
+            Each tensor has shape [num_samples, num_classes] and is returned on the CPU.
+
+    Notes:
+        - Each model is evaluated in evaluation mode using `model.eval()`.
+        - `torch.no_grad()` is used for memory-efficient inference.
+        - Input tensors are moved to the specified device before inference.
+        - The returned logits are always moved back to CPU for consistency.
+        - Assumes `get_val_loader()` is compatible with the tokenizer and data format.
     """
     weights = np.array(weights)
     weights_tensor = torch.tensor(weights, dtype=torch.float32).unsqueeze(1).unsqueeze(2)

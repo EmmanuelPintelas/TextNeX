@@ -46,12 +46,9 @@ if __name__ == "__main__":
         val_texts,
         val_labels,
         test_texts,
-        test_labels
+        test_labels,
+        num_labels
         )
-    # with open('models_probs_dict.json', 'w') as json_file:
-    #         json.dump(models_probs_dict, json_file, indent=4)
-    # with open('models_probs_dict.json', 'r') as json_file:
-    # models_probs_dict = json.load(json_file)
 
     # scaling probs and update dictionary
     model_names = list(models_probs_dict.keys())

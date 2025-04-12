@@ -102,7 +102,8 @@ def predictor(
 def model_loader(
         model_file: str = None,
         model_load_path: str = None,
-        device: str = None
+        device: str = None,
+        num_labels: int = None
         ) -> tuple:
     """
     Loads a pre-trained model and tokenizer from a specified file.
@@ -173,7 +174,8 @@ def extract_probabilities(
         val_texts: list[str]=None,
         val_labels: np.array=None,
         test_texts: list[str]=None,
-        test_labels: np.array=None
+        test_labels: np.array=None,
+        num_labels: int=None
         ) -> dict:
     """
     Extracts the probabilities for each model in the given list of model files and computes their GM (Geometric Mean) score.
@@ -214,7 +216,7 @@ def extract_probabilities(
     for model_file in model_files:
         if model_file.endswith('.pt'):
 
-            model_name, tokenizer, model = model_loader(model_file, model_load_path, device)
+            model_name, tokenizer, model = model_loader(model_file, model_load_path, device, num_labels)
             _, val_loader, _ = data_loaders(
                 tokenizer,
                 train_texts,
