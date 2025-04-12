@@ -1,3 +1,4 @@
 .venv
 Storage/
 Datasets/
+__pycache__/
